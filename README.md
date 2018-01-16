@@ -23,9 +23,9 @@ Setup a crontask to run the autominer script every minute, run `crontab -e` to b
 	
 In nicehashminer is a list of factors for calculating profit, if you wish to add beyond those included, keep the following in mind:
 
-h/s - 0.000000001
-Kh/s - 0.000001
-Mh/s - 0.001
+    h/s - 0.000000001
+    Kh/s - 0.000001
+    Mh/s - 0.001
 
 ## Donations
 
