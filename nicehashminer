@@ -13,7 +13,7 @@
 
 $rig = gethostname();
 $home_dir = '/home/ethos/';
-$nicehashminer_dir = $home_dir . 'nicehashminer/';
+$nicehashminer_dir = $home_dir . 'ethos-nicehash-autominer/';
 $nicehashminer_dir_configs = $nicehashminer_dir . 'configs/';
 if(!file_exists($nicehashminer_dir)) {
 	mkdir($nicehashminer_dir);
