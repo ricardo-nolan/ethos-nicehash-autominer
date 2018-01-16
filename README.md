@@ -4,7 +4,7 @@ Multi Algorithm Switcher for altcoin mining on nicehash in EthOS
 
 ## Usage
 
-Backup your `local.conf` before running this script. You may also choose to run `force-local` on your rig to prevent override from a remote config._
+Backup your `local.conf` before running this script. You may also choose to run `force-local` or comment out all the lines in `remote.conf` on your rig to prevent override from a remote config.
 
 To get up and running, you need to do the following:
 
