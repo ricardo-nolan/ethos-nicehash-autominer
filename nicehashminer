@@ -1,0 +1,89 @@
+#!/usr/bin/env php
+<?php
+/**
+ * This script is loosely based off of https://github.com/GruveTools/ethos-autominer and https://github.com/anemic-royalty/arnl
+ *
+ * 
+ *
+ * Donations accepted :
+ * BTC: 3JfgwF7t1mnwLkJZHMoRvgxMWj6EiZrVDk
+ * BCH: 1Nx8BPnihW3DukNNxywRpkBJ8K83ENzBQn
+ * ETH: 0x1281BAF53917c2058fFe7ac9Fa2a1d618E76a45C
+ */
+
+$rig = gethostname();
+$home_dir = '/home/ethos/';
+$nicehashminer_dir = $home_dir . 'nicehashminer/';
+$nicehashminer_dir_configs = $nicehashminer_dir . 'configs/';
+if(!file_exists($nicehashminer_dir)) {
+	mkdir($nicehashminer_dir);
+}
+if(!file_exists($nicehashminer_dir . 'config.json')) {
+	exit("Missing a config.json file, please use the config.sample.json file as a template.\r\n");
+}
+$config = json_decode(file_get_contents($nicehashminer_dir . 'config.json'));
+$stats = json_decode(file_get_contents($config['settings']['ethos_url']),1);
+$minuptime = $config['settings']['mine_duration'];
+$uptime = $stats['rigs'][$rig]['miner_secs'];
+$currentpool=explode(".",$stats['rigs'][$rig]['pool']);
+$current=$currentpool[0];
+$content=file_get_contents($config['settings']['nicehash_url']);
+if(!$content){
+	exit("Unable to load JSON from Nicehash.\r\n");
+}
+$json=json_decode($content,1);
+
+$factors=array(
+	'neoscrypt'=>0.000001,
+	'lyra2rev2'=>0.000001,
+	'daggerhashimoto'=>0.001,
+	'cryptonight'=>0.000000001, 
+	'lbry'=>0.001,
+	'equihash'=>0.000000001,
+	'pascal'=>0.001,
+	'x11gost'=>0.001,
+	'sia'=>0.001,
+	'skunk'=>0.001
+);
+
+foreach($json['result']['simplemultialgo'] as $id=>$row){
+	if(array_key_exists($row['name'],$config['hashrates'])){
+		$profit=round($factors[$row['name']]*$row['paying']*$config['hashrates'][$row['name']],4);
+		if(!isset($best['profit']) || (isset($best['profit']) && $best['profit']<$profit)){
+			$best['name']=$row['name'];
+			$best['paying']=$row['paying'];
+			$best['profit']=$profit;
+		}
+	}
+}
+if(!file_exists($nicehashminer_dir . 'current.txt')) {
+	file_put_contents($nicehashminer_dir . 'current.txt',$current);
+}
+else{
+	$current=file_get_contents($nicehashminer_dir . 'current.txt');
+}
+if($uptime/60 > $minuptime*60 && $current!=$best['name']){
+	copy($nicehashminer_dir_configs . $config['configs'][$best['name']], $home_dir . 'local.conf');
+	file_put_contents($nicehashminer_dir . 'current.txt',$best['name']);
+	sleep(5);
+	shell_exec('/opt/ethos/bin/disallow 2>&1');
+	sleep(5);
+	shell_exec('/opt/ethos/bin/minestop 2>&1');
+	sleep(5);
+	shell_exec('/opt/ethos/bin/allow 2>&1');
+	if(!empty($config['settings']['pushover']['token']) && !empty($config['settings']['pushover']['user'])){
+		$data = array(
+			'token' => $config['settings']['pushover']['token'],
+			'user' => $config['settings']['pushover']['user'],
+			'title' => 'Nicehashminer',
+			'message' => 'Switching to '.$best['name'].'for at least'.$minuptime.' hour',
+		);
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_URL, 'https://api.pushover.net/1/messages.json');
+		curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
+		curl_exec($curl);
+		curl_close($curl);
+	}
+}

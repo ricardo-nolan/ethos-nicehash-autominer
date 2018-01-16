@@ -1,0 +1,29 @@
+{
+  "settings": {
+    "nicehash_url": "https://api.nicehash.com/api?method=simplemultialgo.info",
+	"ethos_url": "http://<public>.ethosdistro.com/?json=yes",
+    "mine_duration": 1,
+    "pushover": {
+      "user": "",
+      "token": ""
+    }
+  },
+  "hashrates":
+  	{
+	  "cryptonight": 7920,
+	  "daggerhashimoto": 312,
+	  "equihash": 3120
+	}
+  ,
+  "configs": [
+    {
+      "cryptonight": "cryptonight.conf"
+    },
+    {
+      "daggerhashimoto": "daggerhashimoto.conf"
+    },
+    {
+      "equihash": "equihash.conf"
+    }
+  ]
+}
