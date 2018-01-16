@@ -21,7 +21,7 @@ if(!file_exists($nicehashminer_dir)) {
 if(!file_exists($nicehashminer_dir . 'config.json')) {
 	exit("Missing a config.json file, please use the config.sample.json file as a template.\r\n");
 }
-$config = json_decode(file_get_contents($nicehashminer_dir . 'config.json'));
+$config = json_decode(file_get_contents($nicehashminer_dir . 'config.json'),1);
 $stats = json_decode(file_get_contents($config['settings']['ethos_url']),1);
 $minuptime = $config['settings']['mine_duration'];
 $uptime = $stats['rigs'][$rig]['miner_secs'];
