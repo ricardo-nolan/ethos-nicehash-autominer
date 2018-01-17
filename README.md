@@ -1,58 +1,67 @@
 # ethos-nicehash-autominer
 Multi Algorithm Switcher for altcoin mining on nicehash in EthOS
 
-
 ## Usage
 
 Backup your `local.conf` before running this script. You may also choose to run `force-local` or comment out all the lines in `remote.conf` on your rig to prevent override from a remote config.
 
-To get up and running, you need to do the following:
+To get up and running, you need to do the following steps:
 
-    Create new folders for the script
-    Download the nicehashminer and config.sample.json files
-    Download/create algorithm config files
-    Update the configs per coin inside the configs folder (you can add more configs as suit your needs)
-    
-### Option 1: Git
-    git clone https://github.com/foraern/ethos-nicehash-autominer.git
-    cp config.sample.json config.json
-    cp -R configs-samples/ configs
+    Backup local configuration files and disable remote config
+    Download the nicehashminer files
+    Create config.json file using sample config file and update with your info
+    Create config files using sample algorithm config files for desired algorithms you wish to mine
+    Update the config file to include your rig information and configured algorithm configs (you can add more configs as suit your needs)
 
-### Option 2: Download files
-    mkdir -p /home/ethos/ethos-nicehash-autominer/configs
-    wget -O /home/ethos/ethos-nicehash-autominer/nicehashminer https://raw.githubusercontent.com/foraern/ethos-nicehash-autominer/master/nicehashminer
-    wget -O /home/ethos/ethos-nicehash-autominer/config.json https://raw.githubusercontent.com/foraern/ethos-nicehash-autominer/master/config.sample.json
-    wget -O /home/ethos/ethos-nicehash-autominer/configs/equihash.conf https://raw.githubusercontent.com/foraern/ethos-nicehash-autominer/master/configs-samples/equihash.conf
+### Backup and disable existing configs
+Run the following commands:
+
+    cp /home/ethos/local.conf /home/ethos/local.backup.conf
+    cp /home/ethos/remote.conf /home/ethos/remote.backup.conf
+    force-local 
+
+### Download project files with Git
+Run the following commands:
+
+    git clone https://github.com/foraern/ethos-nicehash-autominer.git /home/ethos/ethos-nicehash-autominer
   
-### Add / Update Config files in /home/ethos/ethos-nicehash-autominer/configs
-    Update algorithm config files for algorithms you wish to include in the automining
+### Add / Update Algorithm Config files
+Update algorithm config files for algorithms you wish to include in the automining.  You can copy the sample config files in the config-samples folder by copying into the /home/ethos/ethos-nicehash-autominer/configs folder.
 
-    For example, in the equihash.conf you would update the following info:
-    	custompanel <public><secret>
-    	proxywallet <rig> <wallet>.worker1
-    	loc <rig> worker1
+For example, copy the equihash.conf file:
 
-    Add more configs as suit your needs
+    cp /home/ethos/ethos-nicehash-autominer/configs-sample/equihash.conf /home/ethos/ethos-nicehash-autominer/configs/equihash.conf
 
-### Update Config.json
+Update the config file:
+
+   	custompanel <public><secret>
+   	proxywallet <rig> <wallet>.worker1
+   	loc <rig> worker1
+
+Add more configs as suit your needs.
+
+### Create a script configuration file
+A sample configuration file has been provided named config-sample.json that can be used to help build your own config.json file.  
+
+Run the following the command to copy the sample config.sample.json into your production config.json file:
+
+cp /home/ethos/ethos-nicehash-autominer/config.sample.json /home/ethos/ethos-nicehash-autominer/config.json
+
+Update the following sections with your information:
+
     Update the "ethos_url" with your ethOS Panel URL
-    Populate "hashrates" with info from https://whattomine.com/
-    Add / Update "configs" section with algorithms you configured in the Configs folder
+    Check https://whattomine.com to get hashrates for your mining rig
+    Populate "hashrates" with info for your configuration
+    Add to "configs" section with algorithms that match the algorithm config files created in the /home/ethos/ethos-nicehash-autominer/configs folder
+    Insert your token and user for pushover alerts (optional)
 
 ### Schedule nicehashminer to run every five minutes
-        (crontab -l 2>/dev/null; echo "*/5 * * * * /home/ethos/ethos-nicehash-autominer/nicehashminer") | crontab -
 
+    (crontab -l 2>/dev/null; echo "*/5 * * * * /home/ethos/ethos-nicehash-autominer/nicehashminer") | crontab -
 
 ### Additional Notes
-Open /home/ethos/ethos-nicehash-autominer/config.json 
-
-	1. Check Whattomine.com to get hashrates for your rig
-	2. Update hashrates in config.json
-	3. Insert your token and user for pushover alerts (optional)
-	4. For any additional coin you want to mine, add hashrate and a config file.
-	5. Mine duration is the minimum time to mine on an algorithm in hours
-	6. If installed via git, stay up to date with "git pull"
-
+- For any additional coin you want to mine, add hashrate and a config file.
+- Mine duration is the minimum time to mine on an algorithm in hours
 
 In nicehashminer is a list of factors for calculating profit, if you wish to add beyond those included, keep the following in mind:
 
