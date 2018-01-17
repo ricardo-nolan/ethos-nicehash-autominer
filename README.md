@@ -12,8 +12,13 @@ To get up and running, you need to do the following:
     Download the nicehashminer and config.sample.json files
     Download/create algorithm config files
     Update the configs per coin inside the configs folder (you can add more configs as suit your needs)
+    
+### Option 1: Git
+    git clone https://github.com/foraern/ethos-nicehash-autominer.git
+    cp config.sample.json config.json
+    cp -R configs-samples/ configs
 
-### Download files
+### Option 2: Download files
     mkdir -p /home/ethos/ethos-nicehash-autominer/configs
     wget -O /home/ethos/ethos-nicehash-autominer/nicehashminer https://raw.githubusercontent.com/foraern/ethos-nicehash-autominer/master/nicehashminer
     wget -O /home/ethos/ethos-nicehash-autominer/config.json https://raw.githubusercontent.com/foraern/ethos-nicehash-autominer/master/config.sample.json
@@ -46,6 +51,7 @@ Open /home/ethos/ethos-nicehash-autominer/config.json
 	3. Insert your token and user for pushover alerts (optional)
 	4. For any additional coin you want to mine, add hashrate and a config file.
 	5. Mine duration is the minimum time to mine on an algorithm in hours
+	6. If installed via git, stay up to date with "git pull"
 
 
 In nicehashminer is a list of factors for calculating profit, if you wish to add beyond those included, keep the following in mind:
