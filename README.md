@@ -9,15 +9,15 @@ Backup your `local.conf` before running this script. You may also choose to run 
 To get up and running, you need to do the following:
 
     Create new folders for the script
-    Download the nicehashminer and config.json files
+    Download the nicehashminer and config.sample.json files
     Download/create algorithm config files
     Update the configs per coin inside the configs folder (you can add more configs as suit your needs)
 
 ### Download files
     mkdir -p /home/ethos/ethos-nicehash-autominer/configs
-    wget -O /home/ethos/ethos-nicehash-autominer/nicehashminer https://raw.githubusercontent.com/dscoduc/ethos-nicehash-autominer/master/nicehashminer
-    wget -O /home/ethos/ethos-nicehash-autominer/config.json https://raw.githubusercontent.com/dscoduc/ethos-nicehash-autominer/master/config.json
-    wget -O /home/ethos/ethos-nicehash-autominer/configs/equihash.conf https://raw.githubusercontent.com/dscoduc/ethos-nicehash-autominer/master/configs/equihash.conf
+    wget -O /home/ethos/ethos-nicehash-autominer/nicehashminer https://raw.githubusercontent.com/foraern/ethos-nicehash-autominer/master/nicehashminer
+    wget -O /home/ethos/ethos-nicehash-autominer/config.json https://raw.githubusercontent.com/foraern/ethos-nicehash-autominer/master/config.sample.json
+    wget -O /home/ethos/ethos-nicehash-autominer/configs/equihash.conf https://raw.githubusercontent.com/foraern/ethos-nicehash-autominer/master/configs-samples/equihash.conf
   
 ### Add / Update Config files in /home/ethos/ethos-nicehash-autominer/configs
     Update algorithm config files for algorithms you wish to include in the automining
