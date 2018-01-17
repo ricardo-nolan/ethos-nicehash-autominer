@@ -80,3 +80,5 @@ You can send donations to any of the following addresses:
 ## Credits
 
 This script is loosely based off of https://github.com/GruveTools/ethos-autominer and https://github.com/anemic-royalty/arnl
+
+Documentation provided by https://www.reddit.com/user/dscoduc
