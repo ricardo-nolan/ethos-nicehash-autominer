@@ -22,15 +22,18 @@ Run the following commands:
 
 ### Download project files with Git
 Run the following commands:
+
     git clone https://github.com/foraern/ethos-nicehash-autominer.git /home/ethos/ethos-nicehash-autominer
   
 ### Add / Update Algorithm Config files
 Update algorithm config files for algorithms you wish to include in the automining.  You can copy the sample config files in the config-samples folder by copying into the /home/ethos/ethos-nicehash-autominer/configs folder.
 
 For example, copy the equihash.conf file:
+
     cp /home/ethos/ethos-nicehash-autominer/configs-sample/equihash.conf /home/ethos/ethos-nicehash-autominer/configs/equihash.conf
 
 Update the config file:
+
    	custompanel <public><secret>
    	proxywallet <rig> <wallet>.worker1
    	loc <rig> worker1
@@ -41,9 +44,11 @@ Add more configs as suit your needs.
 A sample configuration file has been provided named config-sample.json that can be used to help build your own config.json file.  
 
 Run the following the command to copy the sample config.sample.json into your production config.json file:
-    cp /home/ethos/ethos-nicehash-autominer/config.sample.json /home/ethos/ethos-nicehash-autominer/config.json
+
+cp /home/ethos/ethos-nicehash-autominer/config.sample.json /home/ethos/ethos-nicehash-autominer/config.json
 
 Update the following sections with your information:
+
     Update the "ethos_url" with your ethOS Panel URL
     Check https://whattomine.com to get hashrates for your mining rig
     Populate "hashrates" with info for your configuration
@@ -51,7 +56,8 @@ Update the following sections with your information:
     Insert your token and user for pushover alerts (optional)
 
 ### Schedule nicehashminer to run every five minutes
-        (crontab -l 2>/dev/null; echo "*/5 * * * * /home/ethos/ethos-nicehash-autominer/nicehashminer") | crontab -
+
+    (crontab -l 2>/dev/null; echo "*/5 * * * * /home/ethos/ethos-nicehash-autominer/nicehashminer") | crontab -
 
 ### Additional Notes
 - For any additional coin you want to mine, add hashrate and a config file.
