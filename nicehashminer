@@ -48,7 +48,7 @@ $factors=array(
 $output="Summary: \r\n";
 foreach($json['result']['simplemultialgo'] as $id=>$row){
 	if(array_key_exists($row['name'],$config['hashrates'])){
-		$profit=round($factors[$row['name']]*$row['paying']*$config['hashrates'][$row['name']],4);
+		$profit=round($factors[$row['name']]*$row['paying']*$config['hashrates'][$row['name']],8);
 		$output.=$row['name'].":".$profit."\r\n";
 		if(!isset($best['profit']) || (isset($best['profit']) && $best['profit']<$profit)){
 			$best['name']=$row['name'];
