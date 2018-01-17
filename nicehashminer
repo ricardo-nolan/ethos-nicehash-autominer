@@ -49,7 +49,7 @@ $output="Summary: \r\n";
 foreach($json['result']['simplemultialgo'] as $id=>$row){
 	if(array_key_exists($row['name'],$config['hashrates'])){
 		$profit=round($factors[$row['name']]*$row['paying']*$config['hashrates'][$row['name']],8);
-		$output.=$row['name'].":".$profit."\r\n";
+		$output.=$row['name'].":".number_format($profit,8)."\r\n";
 		if(!isset($best['profit']) || (isset($best['profit']) && $best['profit']<$profit)){
 			$best['name']=$row['name'];
 			$best['paying']=$row['paying'];
@@ -57,7 +57,7 @@ foreach($json['result']['simplemultialgo'] as $id=>$row){
 		}
 	}
 }
-$output.="\r\nMost profitable coin is: ".$best['name']." at ".$best['profit']."\r\n\r\n";
+$output.="\r\nMost profitable coin is: ".$best['name']." at ".number_format($best['profit'],8)."\r\n\r\n";
 echo $output;
 if(!file_exists($nicehashminer_dir . 'current.txt')) {
 	file_put_contents($nicehashminer_dir . 'current.txt',$current);
