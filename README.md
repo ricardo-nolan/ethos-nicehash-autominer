@@ -8,9 +8,38 @@ Backup your `local.conf` before running this script. You may also choose to run 
 
 To get up and running, you need to do the following:
 
-Update the configs per coin at /home/ethos/nicehashminer/configs (you can add more configs as suit your needs)
+    Create new folders for the script
+    Download the nicehashminer and config.sample.json files
+    Download/create algorithm config files
+    Update the configs per coin inside the configs folder (you can add more configs as suit your needs)
 
-Open /home/ethos/nicehashminer/config.json 
+### Download files
+    mkdir -p /home/ethos/ethos-nicehash-autominer/configs
+    wget -O /home/ethos/ethos-nicehash-autominer/nicehashminer https://raw.githubusercontent.com/foraern/ethos-nicehash-autominer/master/nicehashminer
+    wget -O /home/ethos/ethos-nicehash-autominer/config.json https://raw.githubusercontent.com/foraern/ethos-nicehash-autominer/master/config.sample.json
+    wget -O /home/ethos/ethos-nicehash-autominer/configs/equihash.conf https://raw.githubusercontent.com/foraern/ethos-nicehash-autominer/master/configs-samples/equihash.conf
+  
+### Add / Update Config files in /home/ethos/ethos-nicehash-autominer/configs
+    Update algorithm config files for algorithms you wish to include in the automining
+
+    For example, in the equihash.conf you would update the following info:
+    	custompanel <public><secret>
+    	proxywallet <rig> <wallet>.worker1
+    	loc <rig> worker1
+
+    Add more configs as suit your needs
+
+### Update Config.json
+    Update the "ethos_url" with your ethOS Panel URL
+    Populate "hashrates" with info from https://whattomine.com/
+    Add / Update "configs" section with algorithms you configured in the Configs folder
+
+### Schedule nicehashminer to run every five minutes
+        (crontab -l 2>/dev/null; echo "*/5 * * * * /home/ethos/ethos-nicehash-autominer/nicehashminer") | crontab -
+
+
+### Additional Notes
+Open /home/ethos/ethos-nicehash-autominer/config.json 
 
 	1. Check Whattomine.com to get hashrates for your rig
 	2. Update hashrates in config.json
@@ -18,9 +47,7 @@ Open /home/ethos/nicehashminer/config.json
 	4. For any additional coin you want to mine, add hashrate and a config file.
 	5. Mine duration is the minimum time to mine on an algorithm in hours
 
-Setup a crontask to run the autominer script every 5 minutes, run `crontab -e` to begin editing and add the following line:
-    `*/5 * * * * /home/ethos/nicehashminer/nicehashminer`
-	
+
 In nicehashminer is a list of factors for calculating profit, if you wish to add beyond those included, keep the following in mind:
 
     h/s - 0.000000001
