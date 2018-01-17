@@ -59,17 +59,20 @@ foreach($json['result']['simplemultialgo'] as $id=>$row){
 		}
 	}
 }
-$output.="\r\nMost profitable coin is: ".$best['name']." at ".number_format($best['profit'],8)."\r\n\r\n";
+$output.="\r\nMost profitable coin is: ".$best['name']." at ".number_format($best['profit'],8)."\r\n";
+$output.="Miner uptime is: ".date('H:i:s', $uptime)."\r\n";
 echo $output;
 if(!file_exists($nicehashminer_dir . 'current.txt')) {
 	file_put_contents($nicehashminer_dir . 'current.txt',$current);
+	$firstrun=true;
 }
 else{
 	$current=file_get_contents($nicehashminer_dir . 'current.txt');
 }
-if($uptime/60 > $minuptime*60 && $current!=$best['name']){
+if(($uptime/60 > $minuptime*60 && $current!=$best['name']) || $firstrun==true){
 	if(file_exists($nicehashminer_dir_configs . $config['configs'][$best['name']])){
 		copy($nicehashminer_dir_configs . $config['configs'][$best['name']], $home_dir . 'local.conf');
+		echo "Copied configuration from ".$nicehashminer_dir_configs . $config['configs'][$best['name']].".\r\n";
 	}
 	else{
 		exit("Missing .conf file for ".$best['name'].".\r\n");

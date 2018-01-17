@@ -8,22 +8,14 @@
       "token": ""
     }
   },
-  "hashrates":
-  	{
+  "hashrates": {
 	  "cryptonight": 7920,
 	  "daggerhashimoto": 312,
 	  "equihash": 3120
-	}
-  ,
-  "configs": [
-    {
-      "cryptonight": "cryptonight.conf"
-    },
-    {
-      "daggerhashimoto": "daggerhashimoto.conf"
-    },
-    {
+	},
+  "configs": {
+      "cryptonight": "cryptonight.conf",
+      "daggerhashimoto": "daggerhashimoto.conf",
       "equihash": "equihash.conf"
     }
-  ]
 }
