@@ -66,7 +66,12 @@ else{
 	$current=file_get_contents($nicehashminer_dir . 'current.txt');
 }
 if($uptime/60 > $minuptime*60 && $current!=$best['name']){
-	copy($nicehashminer_dir_configs . $config['configs'][$best['name']], $home_dir . 'local.conf');
+	if(file_exists($nicehashminer_dir_configs . $config['configs'][$best['name']])){
+		copy($nicehashminer_dir_configs . $config['configs'][$best['name']], $home_dir . 'local.conf');
+	}
+	else{
+		exit("Missing .conf file for ".$best['name'].".\r\n");
+	}
 	file_put_contents($nicehashminer_dir . 'current.txt',$best['name']);
 	sleep(5);
 	shell_exec('/opt/ethos/bin/disallow 2>&1');
