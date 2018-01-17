@@ -59,7 +59,8 @@ foreach($json['result']['simplemultialgo'] as $id=>$row){
 		}
 	}
 }
-$output.="\r\nMost profitable coin is: ".$best['name']." at ".number_format($best['profit'],8)."\r\n";
+$output.="\r\nCurrently mining ".$current."\r\n";
+$output.="Most profitable coin is: ".$best['name']." at ".number_format($best['profit'],8)."\r\n";
 $output.="Miner uptime is: ".date('H:i:s', $uptime)."\r\n";
 echo $output;
 if(!file_exists($nicehashminer_dir . 'current.txt') || filesize($nicehashminer_dir . 'current.txt')==0) {
