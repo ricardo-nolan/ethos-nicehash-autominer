@@ -62,7 +62,7 @@ foreach($json['result']['simplemultialgo'] as $id=>$row){
 $output.="\r\nMost profitable coin is: ".$best['name']." at ".number_format($best['profit'],8)."\r\n";
 $output.="Miner uptime is: ".date('H:i:s', $uptime)."\r\n";
 echo $output;
-if(!file_exists($nicehashminer_dir . 'current.txt')) {
+if(!file_exists($nicehashminer_dir . 'current.txt') || filesize($nicehashminer_dir . 'current.txt')==0) {
 	file_put_contents($nicehashminer_dir . 'current.txt',$current);
 	$firstrun=true;
 }
@@ -89,7 +89,7 @@ if(($uptime/60 > $minuptime*60 && $current!=$best['name']) || $firstrun==true){
 			'token' => $config['settings']['pushover']['token'],
 			'user' => $config['settings']['pushover']['user'],
 			'title' => 'Nicehashminer',
-			'message' => 'Switching to '.$best['name'].'for at least'.$minuptime.' hour',
+			'message' => 'Switching to '.$best['name'].' for at least'.$minuptime.' hour',
 		);
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL, 'https://api.pushover.net/1/messages.json');

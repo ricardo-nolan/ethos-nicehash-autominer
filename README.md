@@ -18,8 +18,8 @@ Open /home/ethos/nicehashminer/config.json
 	4. For any additional coin you want to mine, add hashrate and a config file.
 	5. Mine duration is the minimum time to mine on an algorithm in hours
 
-Setup a crontask to run the autominer script every minute, run `crontab -e` to begin editing and add the following line:
-    `* * * * * /home/ethos/nicehashminer/nicehashminer`
+Setup a crontask to run the autominer script every 5 minutes, run `crontab -e` to begin editing and add the following line:
+    `*/5 * * * * /home/ethos/nicehashminer/nicehashminer`
 	
 In nicehashminer is a list of factors for calculating profit, if you wish to add beyond those included, keep the following in mind:
 
