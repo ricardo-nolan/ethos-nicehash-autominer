@@ -70,6 +70,9 @@ else{
 	$current=file_get_contents($nicehashminer_dir . 'current.txt');
 }
 if(($uptime/60 > $minuptime*60 && $current!=$best['name']) || $firstrun==true){
+	if(empty($config['configs'][$best['name']])){
+		exit("Missing configuration for ".$best['name'].".\r\n");
+	}
 	if(file_exists($nicehashminer_dir_configs . $config['configs'][$best['name']])){
 		copy($nicehashminer_dir_configs . $config['configs'][$best['name']], $home_dir . 'local.conf');
 		echo "Copied configuration from ".$nicehashminer_dir_configs . $config['configs'][$best['name']].".\r\n";
