@@ -1,106 +1,187 @@
 #!/usr/bin/env php
 <?php
-/**
- * This script is loosely based off of https://github.com/GruveTools/ethos-autominer and https://github.com/anemic-royalty/arnl
- *
- * 
- *
- * Donations accepted :
- * BTC: 3JfgwF7t1mnwLkJZHMoRvgxMWj6EiZrVDk
- * BCH: 1Nx8BPnihW3DukNNxywRpkBJ8K83ENzBQn
- * ETH: 0x1281BAF53917c2058fFe7ac9Fa2a1d618E76a45C
- */
 
-$rig = gethostname();
-$home_dir = '/home/ethos/';
-$nicehashminer_dir = $home_dir . 'ethos-nicehash-autominer/';
-$nicehashminer_dir_configs = $nicehashminer_dir . 'configs/';
-if(!file_exists($nicehashminer_dir)) {
-	mkdir($nicehashminer_dir);
-}
-if(!file_exists($nicehashminer_dir . 'config.json')) {
-	exit("Missing a config.json file, please use the config.sample.json file as a template.\r\n");
-}
-$config = json_decode(file_get_contents($nicehashminer_dir . 'config.json'),1);
-$stats = json_decode(file_get_contents($config['settings']['ethos_url']),1);
-$minuptime = $config['settings']['mine_duration'];
-$uptime = $stats['rigs'][$rig]['miner_secs'];
-$currentpool=explode(".",$stats['rigs'][$rig]['pool']);
-$current=$currentpool[0];
-$content=file_get_contents($config['settings']['nicehash_url']);
-if(!$content){
-	exit("Unable to load JSON from Nicehash.\r\n");
-}
-$json=json_decode($content,1);
+class nicehashminer
+{
 
-$factors=array(
-    'neoscrypt'=>0.000001,
-    'lyra2rev2'=>0.000001,
-    'nist5'=>0.001,
-    'blake2s'=>1,
-    'daggerhashimoto'=>0.001,
-    'cryptonight'=>0.000000001,
-    'lbry'=>0.001,
-    'equihash'=>0.000000001,
-    'pascal'=>0.001,
-    'x11gost'=>0.001,
-    'sia'=>0.001,
-    'skunk'=>0.001
-);
-$output="Summary: \r\n";
-foreach($json['result']['simplemultialgo'] as $id=>$row){
-	if(array_key_exists($row['name'],$config['hashrates'])){
-		$profit=round($factors[$row['name']]*$row['paying']*$config['hashrates'][$row['name']],8);
-		$output.=$row['name'].":".number_format($profit,8)."\r\n";
-		if(!isset($best['profit']) || (isset($best['profit']) && $best['profit']<$profit)){
-			$best['name']=$row['name'];
-			$best['paying']=$row['paying'];
-			$best['profit']=$profit;
+	public $rig;
+	public $config;
+	public $stats;
+	public $output;
+	public $current;
+	public $firstrun;
+	public $best;
+
+	public function __construct()
+	{
+		global $argv;
+		$this->args = $argv;
+		$this->rig = gethostname();
+		$this->best = new stdClass();
+		if(file_exists('config.json'))
+		{
+			$this->config = json_decode(file_get_contents('config.json'));
+		}
+		else
+		{
+			exit("Missing a config.json file, please use the config.sample.json file as a template.\r\n");
+		}
+		$this->stats = $this->makerequest($this->config->settings->ethos_url, 1);
+		$this->getprofitability();
+		if($this->config->settings->dryrun == 0 && $this->config->settings->autoswitch == 1)
+		{
+			if($this->config->mine_duration==0 || ($this->config->mine_duration>0 && $this->stats->rigs->{$this->rig}->miner_secs/60 > $this->config->mine_duration*60))
+			{
+				$this->setconfig();
+			}
+		}
+		if($this->config->settings->dryrun == 0 && $this->config->settings->gpuchecker == 1)
+		{
+			$this->rigcheck();
+		}
+		if($this->config->settings->dryrun == 1){
+			$this->output.="This was a dry run\r\n";
 		}
 	}
-}
-$output.="\r\nCurrently mining ".$current."\r\n";
-$output.="Most profitable coin is: ".$best['name']." at ".number_format($best['profit'],8)."\r\n";
-$output.="Miner uptime is: ".date('H:i:s', $uptime)."\r\n";
-echo $output;
-if(!file_exists($nicehashminer_dir . 'current.txt') || filesize($nicehashminer_dir . 'current.txt')==0) {
-	file_put_contents($nicehashminer_dir . 'current.txt',$current);
-	$firstrun=true;
-}
-else{
-	$current=file_get_contents($nicehashminer_dir . 'current.txt');
-}
-if(($uptime/60 > $minuptime*60 && $current!=$best['name']) || $firstrun==true){
-	if(empty($config['configs'][$best['name']])){
-		exit("Missing configuration for ".$best['name'].".\r\n");
+
+	public function getprofitability()
+	{
+		$json = $this->makerequest($this->config->settings->nicehash_url, '', 1);
+		if(!$json)
+		{
+			exit("Unable to load JSON from Nicehash.\r\n");
+		}
+		$this->output = "Summary: \r\n";
+		foreach($json['result']['simplemultialgo'] as $id => $row)
+		{
+			if(array_key_exists($row['name'], $this->config->hashrates))
+			{
+				$profit = round($this->config->factors->$row['name'] * $row['paying'] * $this->config->hashrates->$row['name'], 8);
+				$this->output .= $row['name'] . ":" . number_format($profit, 8) . "\r\n";
+				if(!isset($this->best->profit) || (isset($this->best->profit) && $this->best->profit < $profit))
+				{
+					$this->best->name = $row['name'];
+					$this->best->paying = $row['paying'];
+					$this->best->profit = $profit;
+				}
+			}
+		}
+		$this->output .= "\r\nMost profitable coin is: " . $this->best->name . " at " . number_format($this->best->profit, 8) . "\r\n";
+		$this->output .= "Miner uptime is: " . date('H:i:s', $this->stats->rigs->{$this->rig}->miner_secs) . "\r\n";
 	}
-	if(file_exists($nicehashminer_dir_configs . $config['configs'][$best['name']])){
-		copy($nicehashminer_dir_configs . $config['configs'][$best['name']], $home_dir . 'local.conf');
-		echo "Copied configuration from ".$nicehashminer_dir_configs . $config['configs'][$best['name']].".\r\n";
+
+	public function setcurrent()
+	{
+		$currentpool = explode(".", $this->stats->rigs->rig->$rig->pool);
+		$this->current = $currentpool[0];
+		if(!file_exists($this->config->settings->nicehashminer_dir . 'current.txt') || filesize($this->config->settings->nicehashminer_dir . 'current.txt') == 0)
+		{
+			file_put_contents($this->config->settings->nicehashminer_dir . 'current.txt', $this->current);
+			$this->firstrun = true;
+		}
+		else
+		{
+			$this->current = file_get_contents($this->config->settings->nicehashminer_dir . 'current.txt');
+		}
 	}
-	else{
-		exit("Missing .conf file for ".$best['name'].".\r\n");
+
+	public function setconfig()
+	{
+		$this->setcurrent();
+		if($this->current != $this->best->name || $this->firstrun == true)
+		{
+			if(empty($this->config->configs->$this->best->name))
+			{
+				exit("Missing configuration for " . $this->best->name . ".\r\n");
+			}
+			if(file_exists($this->config->settings->nicehashminer_configs . $this->config->configs->$this->best->name))
+			{
+				copy($this->config->settings->nicehashminer_configs . $this->config->configs->$this->best->name, $this->config->settings->home_dir . 'local.conf');
+				echo "Copied configuration from " . $this->config->settings->nicehashminer_configs . $this->config->configs->$this->best->name . ".\r\n";
+			}
+			else
+			{
+				exit("Missing .conf file for " . $this->best->name . ".\r\n");
+			}
+			file_put_contents($this->config->settings->nicehashminer_dir . 'current.txt', $best['name']);
+
+			$msg = 'Switching to ' . $this->best->name . ' for at least' . $this->stats->rigs->{$this->rig}->miner_secs . ' hour';
+			$this->notify($msg);
+		}
 	}
-	file_put_contents($nicehashminer_dir . 'current.txt',$best['name']);
-	sleep(5);
-	shell_exec('/opt/ethos/bin/disallow 2>&1');
-	sleep(5);
-	shell_exec('/opt/ethos/bin/minestop 2>&1');
-	sleep(5);
-	shell_exec('/opt/ethos/bin/allow 2>&1');
-	if(!empty($config['settings']['pushover']['token']) && !empty($config['settings']['pushover']['user'])){
-		$data = array(
-			'token' => $config['settings']['pushover']['token'],
-			'user' => $config['settings']['pushover']['user'],
-			'title' => 'Nicehashminer',
-			'message' => 'Switching to '.$best['name'].' for at least'.$minuptime.' hour',
-		);
-		$curl = curl_init();
-		curl_setopt($curl, CURLOPT_URL, 'https://api.pushover.net/1/messages.json');
-		curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
-		curl_exec($curl);
-		curl_close($curl);
+
+	public function notify($msg)
+	{
+		if($this->config->settings->notify == 1 && !empty($this->config->settings->pushover->token) && !empty($this->config->settings->pushover->user))
+		{
+			$data = array(
+				'token' => $this->config->settings->pushover->token,
+				'user' => $this->config->settings->pushover->user,
+				'title' => 'Nicehashminer',
+				'message' => $msg,
+			);
+			$this->makerequest($config->settings->pushover->url, $data);
+		}
 	}
+
+	public function rigcheck()
+	{
+		$hashfile = shell_exec('sudo tail -1 /var/run/ethos/miner_hashes.file');
+		$hashes = explode(" ", $hashfile);
+		foreach($hashes as $key => $value)
+		{
+			if($value < $this->config->minimumhash)
+			{
+				$gpudead = true;
+			}
+		}
+		if(file_exists('gpufail.txt'))
+		{
+			$failcount = file_get_contents('gpufail.txt');
+		}
+		else
+		{
+			$failcount = 0;
+		}
+		if($gpudead > 0)
+		{
+			if($failcount > 5)
+			{
+				file_put_contents('0', 'gpufail.txt');
+				$this->output .= "A GPU is failing: " . $hashfile . "\r\n";
+				$msg = 'EthOS Rig ( ' . $this->rig . ' ) Rebooted.....' . $hashfile;
+				$this->notify($msg);
+				shell_exec('sudo reboot');
+			}
+			else
+			{
+				$this->output .= "A GPU is failing: " . $hashfile . "\r\n";
+				$failcount++;
+			}
+		}
+		else
+		{
+			$this->output .= "All GPUs are working: " . $hashfile . "\r\n";
+			file_put_contents('0', 'gpufail.txt');
+		}
+	}
+
+	public function makerequest($url, $data = "", $json = false)
+	{
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+		$result = curl_exec($ch);
+		curl_close($ch);
+
+		return json_decode($result, $json);
+	}
+
 }
+
+$app = new nicehashminer();
+echo $app->output;

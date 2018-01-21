@@ -1,21 +1,42 @@
 {
-  "settings": {
-    "nicehash_url": "https://api.nicehash.com/api?method=simplemultialgo.info",
-	"ethos_url": "http://<public>.ethosdistro.com/?json=yes",
-    "mine_duration": 1,
-    "pushover": {
-      "user": "",
-      "token": ""
-    }
-  },
-  "hashrates": {
-	  "cryptonight": 7920,
-	  "daggerhashimoto": 312,
-	  "equihash": 3120
+	"settings": {
+		"dryrun": 0,
+		"autoswitch": 1,
+		"gpuchecker": 1,
+		"notify": 1,
+		"home_dir": "/home/ethos/",
+		"nicehashminer_dir": "/home/ethos/ethos-nicehash-autominer/",
+		"nicehashminer_configs": "/home/ethos/ethos-nicehash-autominer/configs/",
+		"nicehash_url": "https://api.nicehash.com/api?method=simplemultialgo.info",
+		"ethos_url": "http://<public>.ethosdistro.com/?json=yes",
+		"mine_duration": 1,
+		"pushover": {
+			"user": "",
+			"token": ""
+		}
 	},
-  "configs": {
-      "cryptonight": "cryptonight.conf",
-      "daggerhashimoto": "daggerhashimoto.conf",
-      "equihash": "equihash.conf"
-    }
+	"factors": {
+		"neoscrypt": 0.000001,
+		"lyra2rev2": 0.000001,
+		"nist5": 0.001,
+		"blake2s": 1,
+		"daggerhashimoto": 0.001,
+		"cryptonight": 0.000000001,
+		"lbry": 0.001,
+		"equihash": 0.000000001,
+		"pascal": 0.001,
+		"x11gost": 0.001,
+		"sia": 0.001,
+		"skunk": 0.001
+	},
+	"hashrates": {
+		"cryptonight": 7920,
+		"daggerhashimoto": 312,
+		"equihash": 3120
+	},
+	"configs": {
+		"cryptonight": "cryptonight.conf",
+		"daggerhashimoto": "daggerhashimoto.conf",
+		"equihash": "equihash.conf"
+	}
 }
