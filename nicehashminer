@@ -20,7 +20,7 @@ class nicehashminer
 		$this->best = new stdClass();
 		if(file_exists('config.json'))
 		{
-			$this->config = json_decode(file_get_contents('config.json'));
+			$this->config = json_decode(file_get_contents(__DIR__.'config.json'));
 		}
 		else
 		{
