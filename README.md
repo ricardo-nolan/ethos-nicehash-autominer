@@ -58,6 +58,10 @@ Update the following sections with your information:
 ### Schedule nicehashminer to run every minute
 
     (crontab -l 2>/dev/null; echo "*/1 * * * * /home/ethos/ethos-nicehash-autominer/nicehashminer") | crontab -
+    
+    Alternately, output from crontab to logfile (will automatically be rotated every 24 hours):
+    
+    (crontab -l 2>/dev/null; echo "*/1 * * * * /home/ethos/ethos-nicehash-autominer/nicehashminer  >> /home/ethos/ethos-nicehash-autominer/nicehashminer.log") | crontab -
 
 ### Additional Notes
 - For any additional coin you want to mine, add hashrate and a config file.
