@@ -55,13 +55,13 @@ Update the following sections with your information:
     Add to "configs" section with algorithms that match the algorithm config files created in the /home/ethos/ethos-nicehash-autominer/configs folder
     Insert your token and user for pushover alerts (optional)
 
-### Schedule nicehashminer to run every five minutes
+### Schedule nicehashminer to run every minute
 
-    (crontab -l 2>/dev/null; echo "*/5 * * * * /home/ethos/ethos-nicehash-autominer/nicehashminer") | crontab -
+    (crontab -l 2>/dev/null; echo "*/1 * * * * /home/ethos/ethos-nicehash-autominer/nicehashminer") | crontab -
 
 ### Additional Notes
 - For any additional coin you want to mine, add hashrate and a config file.
-- Mine duration is the minimum time to mine on an algorithm in hours
+- Mine duration is the minimum time to mine on an algorithm in hours, if set to 0 it will immediately switch pools if it finds a more profitable one.
 
 In nicehashminer is a list of factors for calculating profit, if you wish to add beyond those included, keep the following in mind:
 
