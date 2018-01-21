@@ -43,6 +43,7 @@ class nicehashminer
 		if($this->config->settings->dryrun == 1){
 			$this->output.="This was a dry run\r\n";
 		}
+		$this->output.="Time: ".date("H:i:s")."\r\n";
 	}
 
 	public function getprofitability()
