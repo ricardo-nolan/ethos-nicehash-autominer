@@ -151,7 +151,7 @@ class nicehashminer
 		{
 			if($failcount > 5)
 			{
-				file_put_contents('0', 'gpufail.txt');
+				file_put_contents('gpufail.txt','0');
 				$this->output .= "A GPU is failing: " . $hashfile . "\r\n";
 				$msg = 'EthOS Rig ( ' . $this->rig . ' ) Rebooted.....' . $hashfile;
 				$this->notify($msg);
@@ -161,12 +161,13 @@ class nicehashminer
 			{
 				$this->output .= "A GPU is failing: " . $hashfile . "\r\n";
 				$failcount++;
+				file_put_contents('gpufail.txt',$failcount);
 			}
 		}
 		else
 		{
 			$this->output .= "All GPUs are working: " . $hashfile . "\r\n";
-			file_put_contents('0', 'gpufail.txt');
+			file_put_contents('gpufail.txt','0');
 		}
 	}
 
