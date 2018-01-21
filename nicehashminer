@@ -41,8 +41,9 @@ class nicehashminer
 			$this->rigcheck();
 		}
 		if($this->config->settings->dryrun == 1){
-			$this->output.="This was a dry run\n";
+			$this->output .= "[".date('H:i:s')."] This was a dry run\n";
 		}
+		$this->output .= "[".date('H:i:s')."] Time: ".date("H:i:s")."\n";
 	}
 
 	public function getprofitability()
@@ -53,13 +54,13 @@ class nicehashminer
 			$this->output .= "[".date('H:i:s')."] Unable to load JSON from Nicehash.\n";
 			return;
 		}
-		$this->output .= "Summary: \n";
+		$this->output .= "[".date('H:i:s')."] Summary: \n";
 		foreach($json['result']['simplemultialgo'] as $id => $row)
 		{
 			if(array_key_exists($row['name'], $this->config->hashrates))
 			{
 				$profit = round($this->config->factors->$row['name'] * $row['paying'] * $this->config->hashrates->$row['name'], 8);
-				$this->output .= $row['name'] . ":" . number_format($profit, 8) . "\n";
+				$this->output .= "[".date('H:i:s')."] ". $row['name'] . ":" . number_format($profit, 8) . "\n";
 				if(!isset($this->best->profit) || (isset($this->best->profit) && $this->best->profit < $profit))
 				{
 					$this->best->name = $row['name'];
@@ -68,8 +69,8 @@ class nicehashminer
 				}
 			}
 		}
-		$this->output .= "\nMost profitable coin is: " . $this->best->name . " at " . number_format($this->best->profit, 8) . "\n";
-		$this->output .= "Miner uptime is: " . date('H:i:s', $this->stats->rigs->{$this->rig}->miner_secs) . "\n";
+		$this->output .= "[".date('H:i:s')."] Most profitable coin is: " . $this->best->name . " at " . number_format($this->best->profit, 8) . "\n";
+		$this->output .= "[".date('H:i:s')."] Miner uptime is: " . date('H:i:s', $this->stats->rigs->{$this->rig}->miner_secs) . "\n";
 	}
 
 	public function setcurrent()
@@ -152,21 +153,21 @@ class nicehashminer
 			if($failcount > 5)
 			{
 				file_put_contents('gpufail.txt','0');
-				$this->output .= "A GPU is failing: " . $hashfile . "\n";
+				$this->output .= "[".date('H:i:s')."] A GPU is failing: " . $hashfile . "\n";
 				$msg = 'EthOS Rig ( ' . $this->rig . ' ) Rebooted.....' . $hashfile;
 				$this->notify($msg);
 				shell_exec('sudo reboot');
 			}
 			else
 			{
-				$this->output .= "A GPU is failing: " . $hashfile . "\n";
+				$this->output .= "[".date('H:i:s')."] A GPU is failing: " . $hashfile . "\n";
 				$failcount++;
 				file_put_contents('gpufail.txt',$failcount);
 			}
 		}
 		else
 		{
-			$this->output .= "All GPUs are working: " . $hashfile . "\n";
+			$this->output .= "[".date('H:i:s')."] All GPUs are working: " . $hashfile . "\n";
 			file_put_contents('gpufail.txt','0');
 		}
 	}
