@@ -18,9 +18,9 @@ class nicehashminer
 		$this->args = $argv;
 		$this->rig = gethostname();
 		$this->best = new stdClass();
-		if(file_exists('config.json'))
+		if(file_exists(__DIR__.'/config.json'))
 		{
-			$this->config = json_decode(file_get_contents(__DIR__.'config.json'));
+			$this->config = json_decode(file_get_contents(__DIR__.'/config.json'));
 		}
 		else
 		{
