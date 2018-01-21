@@ -24,7 +24,8 @@ class nicehashminer
 		}
 		else
 		{
-			exit("Missing a config.json file, please use the config.sample.json file as a template.\r\n");
+			$this->output .="Missing a config.json file, please use the config.sample.json file as a template.\r\n";
+			return;
 		}
 		$this->stats = $this->makerequest($this->config->settings->ethos_url, 1);
 		$this->getprofitability();
@@ -49,9 +50,10 @@ class nicehashminer
 		$json = $this->makerequest($this->config->settings->nicehash_url, '', 1);
 		if(!$json)
 		{
-			exit("Unable to load JSON from Nicehash.\r\n");
+			$this->output .="Unable to load JSON from Nicehash.\r\n";
+			return;
 		}
-		$this->output = "Summary: \r\n";
+		$this->output .= "Summary: \r\n";
 		foreach($json['result']['simplemultialgo'] as $id => $row)
 		{
 			if(array_key_exists($row['name'], $this->config->hashrates))
@@ -92,7 +94,8 @@ class nicehashminer
 		{
 			if(empty($this->config->configs->$this->best->name))
 			{
-				exit("Missing configuration for " . $this->best->name . ".\r\n");
+				$this->output .="Missing configuration for " . $this->best->name . ".\r\n";
+				return;
 			}
 			if(file_exists($this->config->settings->nicehashminer_configs . $this->config->configs->$this->best->name))
 			{
@@ -101,7 +104,8 @@ class nicehashminer
 			}
 			else
 			{
-				exit("Missing .conf file for " . $this->best->name . ".\r\n");
+				$this->output .="Missing .conf file for " . $this->best->name . ".\r\n";
+				return;
 			}
 			file_put_contents($this->config->settings->nicehashminer_dir . 'current.txt', $best['name']);
 
