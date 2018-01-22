@@ -124,7 +124,7 @@ class nicehashminer
 				'title' => 'Nicehashminer',
 				'message' => $msg,
 			);
-			$this->makerequest($config->settings->pushover->url, $data);
+			$this->makerequest($this->config->settings->pushover->url, $data);
 		}
 	}
 
@@ -134,7 +134,7 @@ class nicehashminer
 		$hashes = explode(" ", $hashfile);
 		foreach($hashes as $key => $value)
 		{
-			if($value < $this->config->minimumhash)
+			if($value < $this->config->settings->minimumhash)
 			{
 				$gpudead = true;
 			}
