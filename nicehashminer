@@ -100,7 +100,7 @@ class nicehashminer
 			if(file_exists($this->config->settings->nicehashminer_configs . $this->config->configs->{$this->best->name}))
 			{
 				copy($this->config->settings->nicehashminer_configs . $this->config->configs->{$this->best->name}, $this->config->settings->home_dir . 'local.conf');
-				echo "Copied configuration from " . $this->config->settings->nicehashminer_configs . $this->config->configs->{$this->best->name} . ".\n";
+				$this->output .= "[".date('H:i:s')."] Copied configuration from " . $this->config->settings->nicehashminer_configs . $this->config->configs->{$this->best->name} . ".\n";
 			}
 			else
 			{
