@@ -171,7 +171,7 @@ class nicehashminer
 			$this->output .= "[".date('H:i:s')."] All GPUs are working: " . $hashfile;
 			file_put_contents('gpufail.txt','0');
 		}
-		$this->output .= "[".date('H:i:s')."] Current Temp: ".$this->stats->rigs->{$this->rig}->pool."\n";
+		$this->output .= "[".date('H:i:s')."] Current Temp: ".$this->stats->rigs->{$this->rig}->temp."\n";
 		$this->output .= "[".date('H:i:s')."] Hash Speed: " . $totalhash . " MH/s\n\n";
 	}
 
