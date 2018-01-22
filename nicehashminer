@@ -172,7 +172,7 @@ class nicehashminer
 			file_put_contents('gpufail.txt','0');
 		}
 		$this->output .= "[".date('H:i:s')."] Current Temp: ".$this->stats->rigs->{$this->rig}->pool."\n";
-		$this->output .= "[".date('H:i:s')."] Hash Speed: " . $totalhash . " MH/s\n";
+		$this->output .= "[".date('H:i:s')."] Hash Speed: " . $totalhash . " MH/s\n\n";
 	}
 
 	public function makerequest($url, $data = "", $json = false)
