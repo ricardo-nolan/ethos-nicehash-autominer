@@ -132,12 +132,14 @@ class nicehashminer
 	{
 		$hashfile = shell_exec('sudo tail -1 /var/run/ethos/miner_hashes.file');
 		$hashes = explode(" ", $hashfile);
+		$totalhash=0;
 		foreach($hashes as $key => $value)
 		{
 			if($value < $this->config->settings->minimumhash)
 			{
 				$gpudead = true;
 			}
+			$totalhash+=$value;
 		}
 		if(file_exists('gpufail.txt'))
 		{
@@ -169,6 +171,7 @@ class nicehashminer
 			$this->output .= "[".date('H:i:s')."] All GPUs are working: " . $hashfile . "\n";
 			file_put_contents('gpufail.txt','0');
 		}
+		$this->output .= "[".date('H:i:s')."] Hash Speed: " . $totalhash . " MH/s\n";
 	}
 
 	public function makerequest($url, $data = "", $json = false)
