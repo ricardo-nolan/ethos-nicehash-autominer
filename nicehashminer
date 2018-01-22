@@ -141,7 +141,6 @@ class nicehashminer
 			}
 			$totalhash+=$value;
 		}
-		$this->output .= "[".date('H:i:s')."] Hash Speed: " . $totalhash . " MH/s\n";
 		if(file_exists('gpufail.txt'))
 		{
 			$failcount = file_get_contents('gpufail.txt');
@@ -155,24 +154,25 @@ class nicehashminer
 			if($failcount > 5)
 			{
 				file_put_contents('gpufail.txt','0');
-				$this->output .= "[".date('H:i:s')."] A GPU is failing: " . $hashfile . "\n";
+				$this->output .= "[".date('H:i:s')."] A GPU is failing: " . $hashfile;
 				$msg = 'EthOS Rig ( ' . $this->rig . ' ) Rebooted.....' . $hashfile;
 				$this->notify($msg);
 				shell_exec('sudo reboot');
 			}
 			else
 			{
-				$this->output .= "[".date('H:i:s')."] A GPU is failing: " . $hashfile . "\n";
+				$this->output .= "[".date('H:i:s')."] A GPU is failing: " . $hashfile;
 				$failcount++;
 				file_put_contents('gpufail.txt',$failcount);
 			}
 		}
 		else
 		{
-			$this->output .= "[".date('H:i:s')."] All GPUs are working: " . $hashfile . "\n";
+			$this->output .= "[".date('H:i:s')."] All GPUs are working: " . $hashfile;
 			file_put_contents('gpufail.txt','0');
 		}
-		
+		$this->output .= "[".date('H:i:s')."] Current Temp: ".$this->stats->rigs->{$this->rig}->pool."\n";
+		$this->output .= "[".date('H:i:s')."] Hash Speed: " . $totalhash . " MH/s\n";
 	}
 
 	public function makerequest($url, $data = "", $json = false)
