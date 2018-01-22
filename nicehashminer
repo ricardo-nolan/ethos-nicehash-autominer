@@ -76,14 +76,14 @@ class nicehashminer
 	{
 		$currentpool = explode(".", $this->stats->rigs->{$this->rig}->pool);
 		$this->current = $currentpool[0];
-		if(!file_exists($this->config->settings->nicehashminer_dir . 'current.txt') || filesize($this->config->settings->nicehashminer_dir . 'current.txt') == 0)
+		if(!file_exists(__DIR__ . '/current.txt') || filesize(__DIR__ . '/current.txt') == 0)
 		{
-			file_put_contents($this->config->settings->nicehashminer_dir . 'current.txt', $this->current);
+			file_put_contents(__DIR__ . '/current.txt', $this->current);
 			$this->firstrun = true;
 		}
 		else
 		{
-			$this->current = file_get_contents($this->config->settings->nicehashminer_dir . 'current.txt');
+			$this->current = file_get_contents(__DIR__ . '/current.txt');
 		}
 	}
 
@@ -107,7 +107,7 @@ class nicehashminer
 				$this->output .= "[".date('H:i:s')."] Missing .conf file for " . $this->best->name . ".\n";
 				return;
 			}
-			file_put_contents($this->config->settings->nicehashminer_dir . 'current.txt', $best['name']);
+			file_put_contents(__DIR__ . '/current.txt', $this->best->name);
 
 			$msg = 'Switching to ' . $this->best->name . ' for at least' . $this->stats->rigs->{$this->rig}->miner_secs . ' hour';
 			$this->notify($msg);
