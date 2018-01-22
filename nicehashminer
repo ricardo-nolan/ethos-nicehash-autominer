@@ -74,7 +74,7 @@ class nicehashminer
 
 	public function setcurrent()
 	{
-		$currentpool = explode(".", $this->stats->rigs->rig->{$this->rig}->pool);
+		$currentpool = explode(".", $this->stats->rigs->{$this->rig}->pool);
 		$this->current = $currentpool[0];
 		if(!file_exists($this->config->settings->nicehashminer_dir . 'current.txt') || filesize($this->config->settings->nicehashminer_dir . 'current.txt') == 0)
 		{
