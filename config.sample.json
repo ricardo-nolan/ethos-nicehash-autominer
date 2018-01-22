@@ -4,6 +4,7 @@
 		"autoswitch": 1,
 		"gpuchecker": 1,
 		"notify": 1,
+		"minimumhash": 1,
 		"home_dir": "/home/ethos/",
 		"nicehashminer_dir": "/home/ethos/ethos-nicehash-autominer/",
 		"nicehashminer_configs": "/home/ethos/ethos-nicehash-autominer/configs/",
