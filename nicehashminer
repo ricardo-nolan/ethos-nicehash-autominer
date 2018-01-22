@@ -194,7 +194,7 @@ class nicehashminer
 
 if(file_exists(__DIR__."/nicehashminer.log"))
 {
-	if((time() - filemtime(__DIR__."/nicehashminer.log"))/3600 > 24)
+	if(filesize(__DIR__."/nicehashminer.log")> 500000)
 	{
 		shell_exec('sudo cp nicehashminer.log nicehashminer.old');
 		file_put_contents('nicehashminer.log','');
