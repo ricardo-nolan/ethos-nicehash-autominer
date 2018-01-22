@@ -74,7 +74,7 @@ class nicehashminer
 
 	public function setcurrent()
 	{
-		$currentpool = explode(".", $this->stats->rigs->rig->$rig->pool);
+		$currentpool = explode(".", $this->stats->rigs->rig->{$this->rig}->pool);
 		$this->current = $currentpool[0];
 		if(!file_exists($this->config->settings->nicehashminer_dir . 'current.txt') || filesize($this->config->settings->nicehashminer_dir . 'current.txt') == 0)
 		{
@@ -92,15 +92,15 @@ class nicehashminer
 		$this->setcurrent();
 		if($this->current != $this->best->name || $this->firstrun == true)
 		{
-			if(empty($this->config->configs->$this->best->name))
+			if(empty($this->config->configs->{$this->best->name}))
 			{
 				$this->output .= "[".date('H:i:s')."] Missing configuration for " . $this->best->name . ".\n";
 				return;
 			}
-			if(file_exists($this->config->settings->nicehashminer_configs . $this->config->configs->$this->best->name))
+			if(file_exists($this->config->settings->nicehashminer_configs . $this->config->configs->{$this->best->name}))
 			{
-				copy($this->config->settings->nicehashminer_configs . $this->config->configs->$this->best->name, $this->config->settings->home_dir . 'local.conf');
-				echo "Copied configuration from " . $this->config->settings->nicehashminer_configs . $this->config->configs->$this->best->name . ".\n";
+				copy($this->config->settings->nicehashminer_configs . $this->config->configs->{$this->best->name}, $this->config->settings->home_dir . 'local.conf');
+				echo "Copied configuration from " . $this->config->settings->nicehashminer_configs . $this->config->configs->{$this->best->name} . ".\n";
 			}
 			else
 			{
