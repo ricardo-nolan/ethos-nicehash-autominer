@@ -141,6 +141,7 @@ class nicehashminer
 			}
 			$totalhash+=$value;
 		}
+		$this->output .= "[".date('H:i:s')."] Hash Speed: " . $totalhash . " MH/s\n";
 		if(file_exists('gpufail.txt'))
 		{
 			$failcount = file_get_contents('gpufail.txt');
@@ -171,7 +172,7 @@ class nicehashminer
 			$this->output .= "[".date('H:i:s')."] All GPUs are working: " . $hashfile . "\n";
 			file_put_contents('gpufail.txt','0');
 		}
-		$this->output .= "[".date('H:i:s')."] Hash Speed: " . $totalhash . " MH/s\n";
+		
 	}
 
 	public function makerequest($url, $data = "", $json = false)
