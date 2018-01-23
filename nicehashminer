@@ -196,8 +196,8 @@ if(file_exists(__DIR__."/nicehashminer.log"))
 {
 	if(filesize(__DIR__."/nicehashminer.log")> 500000)
 	{
-		shell_exec('sudo cp nicehashminer.log nicehashminer.old');
-		file_put_contents('nicehashminer.log','');
+		shell_exec('sudo cp '.__DIR__.'/nicehashminer.log '.__DIR__.'/nicehashminer.old');
+		file_put_contents(__DIR__.'/nicehashminer.log','');
 	}
 }
 
