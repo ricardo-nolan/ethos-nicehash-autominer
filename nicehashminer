@@ -9,6 +9,7 @@ class nicehashminer
 	public $stats;
 	public $output;
 	public $current;
+	public $failedgpu;
 	public $firstrun;
 	public $best;
 
@@ -18,20 +19,33 @@ class nicehashminer
 		$this->args = $argv;
 		$this->rig = gethostname();
 		$this->best = new stdClass();
-		if(file_exists(__DIR__.'/config.json'))
+		if(file_exists(__DIR__ . '/config.json'))
 		{
-			$this->config = json_decode(file_get_contents(__DIR__.'/config.json'));
+			$this->config = json_decode(file_get_contents(__DIR__ . '/config.json'));
 		}
 		else
 		{
-			$this->output .= "[".date('H:i:s')."] Missing a config.json file, please use the config.sample.json file as a template.\n";
+			$this->output .= "[" . date('H:i:s') . "] Missing a config.json file, please use the config.sample.json file as a template.\n";
 			return;
 		}
 		$this->stats = $this->makerequest($this->config->settings->ethos_url, 1);
+		if(file_exists(__DIR__ . '/activity.json'))
+		{
+			$activity = json_decode(file_get_contents(__DIR__ . '/activity.json'));
+			$this->current = $activity->current;
+			$this->failedgpu = $activity->failed;
+		}
+		else
+		{
+			$currentpool = explode(".", $this->stats->rigs->{$this->rig}->pool);
+			$this->current = $currentpool[0];
+			$this->failedgpu = 0;
+			$this->firstrun = true;
+		}
 		$this->getprofitability();
 		if($this->config->settings->dryrun == 0 && $this->config->settings->autoswitch == 1)
 		{
-			if($this->config->mine_duration==0 || ($this->config->mine_duration>0 && $this->stats->rigs->{$this->rig}->miner_secs/60 > $this->config->mine_duration*60))
+			if($this->config->mine_duration == 0 || ($this->config->mine_duration > 0 && $this->stats->rigs->{$this->rig}->miner_secs / 60 > $this->config->mine_duration * 60))
 			{
 				$this->setconfig();
 			}
@@ -40,9 +54,12 @@ class nicehashminer
 		{
 			$this->rigcheck();
 		}
-		if($this->config->settings->dryrun == 1){
-			$this->output .= "[".date('H:i:s')."] This was a dry run\n";
+		if($this->config->settings->dryrun == 1)
+		{
+			$this->output .= "[" . date('H:i:s') . "] This was a dry run\n";
 		}
+		$activity=array("current"=>$this->current,"failed"=>$this->failedgpu);
+		file_put_contents(__DIR__.'/activity.json',json_encode($activity));
 	}
 
 	public function getprofitability()
@@ -50,16 +67,16 @@ class nicehashminer
 		$json = $this->makerequest($this->config->settings->nicehash_url, '', 1);
 		if(!$json)
 		{
-			$this->output .= "[".date('H:i:s')."] Unable to load JSON from Nicehash.\n";
+			$this->output .= "[" . date('H:i:s') . "] Unable to load JSON from Nicehash.\n";
 			return;
 		}
-		$this->output .= "[".date('H:i:s')."] Summary: \n";
+		$this->output .= "[" . date('H:i:s') . "] Summary: \n";
 		foreach($json['result']['simplemultialgo'] as $id => $row)
 		{
 			if(array_key_exists($row['name'], $this->config->hashrates))
 			{
 				$profit = round($this->config->factors->$row['name'] * $row['paying'] * $this->config->hashrates->$row['name'], 8);
-				$this->output .= "[".date('H:i:s')."] ". $row['name'] . ":" . number_format($profit, 8) . "\n";
+				$this->output .= "[" . date('H:i:s') . "] " . $row['name'] . ":" . number_format($profit, 8) . "\n";
 				if(!isset($this->best->profit) || (isset($this->best->profit) && $this->best->profit < $profit))
 				{
 					$this->best->name = $row['name'];
@@ -68,46 +85,31 @@ class nicehashminer
 				}
 			}
 		}
-		$this->output .= "[".date('H:i:s')."] Most profitable coin is: " . $this->best->name . " at " . number_format($this->best->profit, 8) . "\n";
-		$this->output .= "[".date('H:i:s')."] Miner uptime is: " . date('H:i:s', $this->stats->rigs->{$this->rig}->miner_secs) . "\n";
+		$this->output .= "[" . date('H:i:s') . "] Most profitable coin is: " . $this->best->name . " at " . number_format($this->best->profit, 8) . "\n";
+		$this->output .= "[" . date('H:i:s') . "] Miner uptime is: " . date('H:i:s', $this->stats->rigs->{$this->rig}->miner_secs) . "\n";
 	}
 
-	public function setcurrent()
-	{
-		$currentpool = explode(".", $this->stats->rigs->{$this->rig}->pool);
-		$this->current = $currentpool[0];
-		if(!file_exists(__DIR__ . '/current.txt') || filesize(__DIR__ . '/current.txt') == 0)
-		{
-			file_put_contents(__DIR__ . '/current.txt', $this->current);
-			$this->firstrun = true;
-		}
-		else
-		{
-			$this->current = file_get_contents(__DIR__ . '/current.txt');
-		}
-	}
 
 	public function setconfig()
 	{
-		$this->setcurrent();
 		if($this->current != $this->best->name || $this->firstrun == true)
 		{
 			if(empty($this->config->configs->{$this->best->name}))
 			{
-				$this->output .= "[".date('H:i:s')."] Missing configuration for " . $this->best->name . ".\n";
+				$this->output .= "[" . date('H:i:s') . "] Missing configuration for " . $this->best->name . ".\n";
 				return;
 			}
 			if(file_exists($this->config->settings->nicehashminer_configs . $this->config->configs->{$this->best->name}))
 			{
 				copy($this->config->settings->nicehashminer_configs . $this->config->configs->{$this->best->name}, $this->config->settings->home_dir . 'local.conf');
-				$this->output .= "[".date('H:i:s')."] Copied configuration from " . $this->config->settings->nicehashminer_configs . $this->config->configs->{$this->best->name} . ".\n";
+				$this->output .= "[" . date('H:i:s') . "] Copied configuration from " . $this->config->settings->nicehashminer_configs . $this->config->configs->{$this->best->name} . ".\n";
 			}
 			else
 			{
-				$this->output .= "[".date('H:i:s')."] Missing .conf file for " . $this->best->name . ".\n";
+				$this->output .= "[" . date('H:i:s') . "] Missing .conf file for " . $this->best->name . ".\n";
 				return;
 			}
-			file_put_contents(__DIR__ . '/current.txt', $this->best->name);
+			$this->current = $this->best->name;
 
 			$msg = 'Switching to ' . $this->best->name . ' for at least' . $this->stats->rigs->{$this->rig}->miner_secs . ' hour';
 			$this->notify($msg);
@@ -132,47 +134,38 @@ class nicehashminer
 	{
 		$hashfile = shell_exec('sudo tail -1 /var/run/ethos/miner_hashes.file');
 		$hashes = explode(" ", $hashfile);
-		$totalhash=0;
+		$totalhash = 0;
 		foreach($hashes as $key => $value)
 		{
 			if($value < $this->config->settings->minimumhash)
 			{
 				$gpudead = true;
 			}
-			$totalhash+=$value;
-		}
-		if(file_exists('gpufail.txt'))
-		{
-			$failcount = file_get_contents('gpufail.txt');
-		}
-		else
-		{
-			$failcount = 0;
+			$totalhash += $value;
 		}
 		if($gpudead > 0)
 		{
-			if($failcount > 5)
+			if($this->failedgpu > 5)
 			{
-				file_put_contents('gpufail.txt','0');
-				$this->output .= "[".date('H:i:s')."] A GPU is failing: " . $hashfile;
+				$this->failedgpu = 0;
+				$this->output .= "[" . date('H:i:s') . "] A GPU is failing: " . $hashfile;
 				$msg = 'EthOS Rig ( ' . $this->rig . ' ) Rebooted.....' . $hashfile;
 				$this->notify($msg);
 				shell_exec('sudo reboot');
 			}
 			else
 			{
-				$this->output .= "[".date('H:i:s')."] A GPU is failing: " . $hashfile;
-				$failcount++;
-				file_put_contents('gpufail.txt',$failcount);
+				$this->output .= "[" . date('H:i:s') . "] A GPU is failing: " . $hashfile;
+				$this->failedgpu++;
 			}
 		}
 		else
 		{
-			$this->output .= "[".date('H:i:s')."] All GPUs are working: " . $hashfile;
-			file_put_contents('gpufail.txt','0');
+			$this->output .= "[" . date('H:i:s') . "] All GPUs are working: " . $hashfile;
+			$this->failedgpu = 0;
 		}
-		$this->output .= "[".date('H:i:s')."] Current Temp: ".$this->stats->rigs->{$this->rig}->temp."\n";
-		$this->output .= "[".date('H:i:s')."] Hash Speed: " . $totalhash . " MH/s\n\n";
+		$this->output .= "[" . date('H:i:s') . "] Current Temp: " . $this->stats->rigs->{$this->rig}->temp . "\n";
+		$this->output .= "[" . date('H:i:s') . "] Hash Speed: " . $totalhash . " MH/s\n\n";
 	}
 
 	public function makerequest($url, $data = "", $json = false)
@@ -192,12 +185,12 @@ class nicehashminer
 
 }
 
-if(file_exists(__DIR__."/nicehashminer.log"))
+if(file_exists(__DIR__ . "/nicehashminer.log"))
 {
-	if(filesize(__DIR__."/nicehashminer.log")> 500000)
+	if(filesize(__DIR__ . "/nicehashminer.log") > 500000)
 	{
-		shell_exec('sudo cp '.__DIR__.'/nicehashminer.log '.__DIR__.'/nicehashminer.old');
-		file_put_contents(__DIR__.'/nicehashminer.log','');
+		shell_exec('sudo cp ' . __DIR__ . '/nicehashminer.log ' . __DIR__ . '/nicehashminer.old');
+		file_put_contents(__DIR__ . '/nicehashminer.log', '');
 	}
 }
 
