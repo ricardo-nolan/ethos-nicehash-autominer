@@ -23,7 +23,8 @@ class autofan
 			return;
 		}
 		$this->local = explode("\n", file_get_contents($this->config->settings->home_dir . '/local.conf'));
-		$this->temps = shell_exec("ethos-readdata temps");
+		$this->temps = shell_exec("/opt/ethos/sbin/ethos-readdata temps");
+		$this->output .= "[" . date('H:i:s') . "] Temp: " . $this->temps . "\n";
 		$this->setfan();
 	}
 
@@ -31,7 +32,6 @@ class autofan
 	{
 		$speed = array();
 		$temp = explode(" ", $this->temps);
-		$this->output .= "[" . date('H:i:s') . "] Temp: " . $this->temps . "\n";
 		foreach($temp as $key => $value)
 		{
 			$speed[$key] = $this->adjustspeed($value);
@@ -47,7 +47,7 @@ class autofan
 		}
 		$this->output .= "[" . date('H:i:s') . "] New Setting: fan " . $this->rig . " " . implode(" ", $speed) . "\n";
 		file_put_contents($this->config->settings->home_dir . '/local.conf', implode("\n", $this->local));
-		shell_exec('clear-thermals');
+		shell_exec('/opt/ethos/bin/clear-thermals');
 	}
 
 	public function adjustspeed($temp)
