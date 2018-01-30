@@ -39,7 +39,6 @@ class autofan
 				$this->local[$key]="fan ".$this->rig." ".implode(" ",$speed);
 			}
 		}
-		echo implode("\n",$this->local);
 		file_put_contents($this->config->settings->home_dir . '/local.conf',implode("\n",$this->local));
 		shell_exec('clear-thermals');
 	}
