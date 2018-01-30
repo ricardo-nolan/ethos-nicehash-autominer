@@ -8,6 +8,7 @@ class autofan
 	public $config;
 	public $stats;
 	public $local;
+	public $output;
 
 	public function __construct()
 	{
@@ -30,26 +31,33 @@ class autofan
 	{
 		$speed = array();
 		$temp = explode(" ", $this->stats->rigs->{$this->rig}->temp);
-		foreach($temp as $key=>$value){
-			$speed[$key]=$this->adjustspeed($value);
+		$this->output .= "[" . date('H:i:s') . "] Temp: " . $this->stats->rigs->{$this->rig}->temp . "\n";
+		foreach($temp as $key => $value)
+		{
+			$speed[$key] = $this->adjustspeed($value);
 		}
-		foreach($this->local as $key=>$value){
-			$line=explode(" ",$value);
-			if($line[0]=="fan" && $line[1]==$this->rig){
-				$this->local[$key]="fan ".$this->rig." ".implode(" ",$speed);
+		foreach($this->local as $key => $value)
+		{
+			$line = explode(" ", $value);
+			if($line[0] == "fan" && $line[1] == $this->rig)
+			{
+				$this->output .= "[" . date('H:i:s') . "] Old Setting: " . $value . "\n";
+				$this->local[$key] = "fan " . $this->rig . " " . implode(" ", $speed);
 			}
 		}
-		file_put_contents($this->config->settings->home_dir . '/local.conf',implode("\n",$this->local));
+		$this->output .= "[" . date('H:i:s') . "] New Setting: fan " . $this->rig . " " . implode(" ", $speed) . "\n";
+		file_put_contents($this->config->settings->home_dir . '/local.conf', implode("\n", $this->local));
 		shell_exec('clear-thermals');
 	}
 
 	public function adjustspeed($temp)
 	{
-		$temprange=(array)$this->config->temprange;
-		foreach($temprange as $range=>$newspeed)
+		$temprange = (array) $this->config->temprange;
+		foreach($temprange as $range => $newspeed)
 		{
-			if($temp>$range){
-				$speed=$newspeed;
+			if($temp > $range)
+			{
+				$speed = $newspeed;
 			}
 		}
 		return $speed;
@@ -60,7 +68,8 @@ class autofan
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		if($data!=""){
+		if($data != "")
+		{
 			curl_setopt($ch, CURLOPT_POST, 1);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 		}
@@ -77,3 +86,7 @@ class autofan
 }
 
 $fan = new autofan();
+if($app->config->settings->nicehashminer_log == 1)
+{
+	echo $fan->output."\n";
+}
