@@ -86,7 +86,7 @@ class autofan
 }
 
 $fan = new autofan();
-if($app->config->settings->nicehashminer_log == 1)
+if($fan->config->settings->autofan_log == 1)
 {
 	echo $fan->output."\n";
 }
