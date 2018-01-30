@@ -55,7 +55,7 @@ class autofan
 		$temprange = (array) $this->config->temprange;
 		foreach($temprange as $range => $newspeed)
 		{
-			if($temp > $range)
+			if((int)$temp > (int)$range)
 			{
 				$speed = $newspeed;
 			}
