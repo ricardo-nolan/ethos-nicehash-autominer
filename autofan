@@ -1,0 +1,80 @@
+#!/usr/bin/env php
+<?php
+
+class autofan
+{
+
+	public $rig;
+	public $config;
+	public $stats;
+	public $local;
+
+	public function __construct()
+	{
+		$this->rig = gethostname();
+		if(file_exists(__DIR__ . '/config.json'))
+		{
+			$this->config = json_decode(file_get_contents(__DIR__ . '/config.json'));
+		}
+		else
+		{
+			$this->output .= "[" . date('H:i:s') . "] Missing a config.json file, please use the config.sample.json file as a template.\n";
+			return;
+		}
+		$this->local = explode("\n", file_get_contents($this->config->settings->home_dir . '/local.conf'));
+		$this->stats = $this->makerequest($this->config->settings->ethos_url, 1);
+		$this->setfan();
+	}
+
+	public function setfan()
+	{
+		$speed = array();
+		$temp = explode(" ", $this->stats->rigs->{$this->rig}->temp);
+		foreach($temp as $key=>$value){
+			$speed[$key]=$this->adjustspeed($value);
+		}
+		foreach($this->local as $key=>$value){
+			$line=explode(" ",$value);
+			if($line[0]=="fan" && $line[1]==$this->rig){
+				$this->local[$key]="fan ".$this->rig." ".implode(" ",$speed);
+			}
+		}
+		echo implode("\n",$this->local);
+		file_put_contents($this->config->settings->home_dir . '/local.conf',implode("\n",$this->local));
+		shell_exec('clear-thermals');
+	}
+
+	public function adjustspeed($temp)
+	{
+		$temprange=(array)$this->config->temprange;
+		foreach($temprange as $range=>$newspeed)
+		{
+			if($temp>$range){
+				$speed=$newspeed;
+			}
+		}
+		return $speed;
+	}
+
+	public function makerequest($url, $data = "", $json = false)
+	{
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+		if($data!=""){
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		}
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+		$result = curl_exec($ch);
+		curl_close($ch);
+
+		return json_decode($result, $json);
+	}
+
+}
+
+$fan = new autofan();
