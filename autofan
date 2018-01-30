@@ -85,6 +85,15 @@ class autofan
 
 }
 
+if(file_exists(__DIR__ . "/autofan.log"))
+{
+	if(filesize(__DIR__ . "/autofan.log") > 500000)
+	{
+		shell_exec('sudo cp ' . __DIR__ . '/autofan.log ' . __DIR__ . '/autofan.old');
+		file_put_contents(__DIR__ . '/autofan.log', '');
+	}
+}
+
 $fan = new autofan();
 if($fan->config->settings->autofan_log == 1)
 {
