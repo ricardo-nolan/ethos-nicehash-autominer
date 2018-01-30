@@ -6,7 +6,7 @@ class autofan
 
 	public $rig;
 	public $config;
-	public $stats;
+	public $temps;
 	public $local;
 	public $output;
 
@@ -23,15 +23,15 @@ class autofan
 			return;
 		}
 		$this->local = explode("\n", file_get_contents($this->config->settings->home_dir . '/local.conf'));
-		$this->stats = $this->makerequest($this->config->settings->ethos_url, 1);
+		$this->temps = shell_exec("ethos-readdata temps");
 		$this->setfan();
 	}
 
 	public function setfan()
 	{
 		$speed = array();
-		$temp = explode(" ", $this->stats->rigs->{$this->rig}->temp);
-		$this->output .= "[" . date('H:i:s') . "] Temp: " . $this->stats->rigs->{$this->rig}->temp . "\n";
+		$temp = explode(" ", $this->temps);
+		$this->output .= "[" . date('H:i:s') . "] Temp: " . $this->temps . "\n";
 		foreach($temp as $key => $value)
 		{
 			$speed[$key] = $this->adjustspeed($value);
